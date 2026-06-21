@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MarkItDown Live - Instant Document Converter</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom Style -->
+    <link rel="stylesheet" href="static/style.css">
+    <!-- Highlight.js style -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css">
+</head>
+<body>
+    <div class="glow-container">
+        <div class="glow-sphere glow-sphere-1"></div>
+        <div class="glow-sphere glow-sphere-2"></div>
+    </div>
+
+    <header class="app-header">
+        <div class="header-content">
+            <div class="brand">
+                <i class="fa-solid fa-file-invoice brand-logo"></i>
+                <span class="brand-text">MarkIt<span class="highlight">Down</span></span>
+            </div>
+            <p class="tagline">Convert any document, image, or media into clean Markdown instantly</p>
+        </div>
+    </header>
+
+    <main class="app-main">
+        <!-- Step 1: Upload Panel -->
+        <section class="upload-section">
+            <div class="drop-zone" id="dropZone">
+                <input type="file" id="fileInput" class="file-input" hidden>
+                <div class="drop-zone-content">
+                    <div class="icon-stack">
+                        <i class="fa-solid fa-cloud-arrow-up main-icon"></i>
+                        <div class="badge-row">
+                            <i class="fa-solid fa-file-pdf font-icon" title="PDF"></i>
+                            <i class="fa-solid fa-file-word font-icon" title="Word"></i>
+                            <i class="fa-solid fa-file-excel font-icon" title="Excel"></i>
+                            <i class="fa-solid fa-file-powerpoint font-icon" title="PowerPoint"></i>
+                            <i class="fa-solid fa-file-image font-icon" title="Images"></i>
+                            <i class="fa-solid fa-file-audio font-icon" title="Audio"></i>
+                        </div>
+                    </div>
+                    <h3>Drag & Drop your file here</h3>
+                    <p class="file-limits">Supports PDF, DOCX, XLSX, PPTX, PNG, JPG, MP3, WAV, EPub, ZIP & more</p>
+                    <button class="btn btn-primary" id="browseBtn">
+                        <i class="fa-regular fa-folder-open"></i> Browse Files
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Loader overlay -->
+        <section class="loader-section hidden" id="loaderSection">
+            <div class="loader-card">
+                <div class="spinner-ring">
+                    <div></div><div></div><div></div><div></div>
+                </div>
+                <h4>Converting Document...</h4>
+                <p id="uploadingFileName">Reading file contents</p>
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" id="progressBar"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Error Toast -->
+        <div class="error-toast hidden" id="errorToast">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span class="error-msg" id="errorMsg">Conversion failed. Please try again.</span>
+            <button class="toast-close" id="closeToastBtn">&times;</button>
+        </div>
+
+        <!-- Step 2: Result Workspace (Side-by-side or Toggle) -->
+        <section class="workspace-section hidden" id="workspaceSection">
+            <div class="workspace-container">
+                <!-- Sidebar: File Stats & Info -->
+                <div class="workspace-sidebar">
+                    <div class="card file-info-card">
+                        <h4 class="card-title"><i class="fa-solid fa-circle-info"></i> File Information</h4>
+                        <div class="info-list">
+                            <div class="info-item">
+                                <span class="info-label">Name</span>
+                                <span class="info-value text-truncate" id="metaFileName">document.pdf</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Size</span>
+                                <span class="info-value" id="metaFileSize">0 KB</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Type</span>
+                                <span class="info-value" id="metaFileType">PDF Document</span>
+                            </div>
+                        </div>
+                        <div class="sidebar-actions">
+                            <button class="btn btn-outline" id="resetBtn">
+                                <i class="fa-solid fa-arrow-left"></i> Convert Another
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Content: Previewer -->
+                <div class="workspace-main">
+                    <div class="previewer-card">
+                        <div class="previewer-header">
+                            <div class="tab-buttons">
+                                <button class="tab-btn active" data-tab="formatted">
+                                    <i class="fa-solid fa-eye"></i> Formatted Preview
+                                </button>
+                                <button class="tab-btn" data-tab="raw">
+                                    <i class="fa-solid fa-code"></i> Raw Markdown
+                                </button>
+                            </div>
+                            <div class="action-buttons">
+                                <button class="btn btn-action" id="copyBtn" title="Copy to clipboard">
+                                    <i class="fa-regular fa-copy"></i> Copy
+                                </button>
+                                <button class="btn btn-action btn-success" id="downloadBtn" title="Download Markdown File">
+                                    <i class="fa-solid fa-download"></i> Download
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="previewer-body">
+                            <!-- Formatted Markdown Tab -->
+                            <div class="tab-content active-content markdown-body" id="tabFormatted">
+                                <div class="placeholder-text">Rendering markdown...</div>
+                            </div>
+                            <!-- Raw Markdown Tab -->
+                            <div class="tab-content" id="tabRaw">
+                                <pre><code class="language-markdown" id="rawMarkdownCode"></code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="app-footer">
+        <p>&copy; 2026 MarkItDown Converter. Powered by Microsoft MarkItDown.</p>
+    </footer>
+
+    <!-- Marked.js (Markdown parser) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js"></script>
+    <!-- Highlight.js (Code highlighting) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <!-- Custom Application Code -->
+    <script src="static/app.js"></script>
+</body>
+</html>
