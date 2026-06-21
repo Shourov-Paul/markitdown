@@ -93,8 +93,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const formData = new FormData();
         formData.append('file', file);
 
+        // Determine backend endpoint (local Flask vs. deployed Render backend)
+        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        // TODO: Replace 'markitdown-backend' below with your actual Render service domain after deploying
+        const endpoint = isLocal ? '/convert' : 'https://markitdown-backend.onrender.com/convert';
+
         // Fetch conversion response
-        fetch('/convert', {
+        fetch(endpoint, {
             method: 'POST',
             body: formData
         })

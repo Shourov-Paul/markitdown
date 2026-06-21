@@ -1,9 +1,11 @@
 import os
 import tempfile
 from flask import Flask, request, jsonify, send_from_directory
+from flask_cors import CORS
 from markitdown import MarkItDown
 
 app = Flask(__name__, static_folder='static')
+CORS(app) # Enable CORS for cross-origin requests from GitHub Pages
 app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024  # 32MB Max Upload Limit
 
 # Initialize MarkItDown converter
@@ -54,5 +56,7 @@ def convert_file():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 if __name__ == '__main__':
-    # Bind to 127.0.0.1 and port 5000
-    app.run(host='127.0.0.1', port=5000, debug=True)
+    # Bind to 0.0.0.0 and respect PORT env variable (Render default)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=True)
+
